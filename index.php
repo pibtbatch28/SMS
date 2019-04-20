@@ -1,7 +1,8 @@
 <?php require_once('DB_CONNECTION/DB_Connection.php'); ?>
+
 <?php  session_start();?>
 <?php
-print_r($_POST);
+//print_r($_POST);
 /*if(isset($_POST['sign_in'])){header('Location:home.php');}*/
 if (isset($_POST['sign_in'])){
 //   header('Location:home.php');
@@ -14,11 +15,12 @@ if (isset($_POST['sign_in'])){
   $password=$_POST['pwd'];
   //initiate variable for database password
   $dbpass=null;
+  $ACC_ID=NULL;
  // $u=ctype_upper($user_id)
   //hashing entered password
  // $hashed_password = password_hash($password, PASSWORD_DEFAULT);
   //prepairing sql query
-  $sqlq = "SELECT PASSWORD FROM USER_ACC WHERE USER_ID=?";
+  $sqlq = "SELECT PASSWORD,ACC_ID FROM USER_ACC WHERE USER_ID=?";
   $para=array($user_id);
   $stmt = sqlsrv_prepare($con, $sqlq, $para);//preparir and execute instead of sqlsrv_query
   //checking occured errors when prepairing sql
@@ -34,10 +36,13 @@ if (isset($_POST['sign_in'])){
       while($rec = sqlsrv_fetch_array($stmt)){
        //fetching db pass
         $dbpass = $rec['PASSWORD'];
+        $ACC_ID = $rec['ACC_ID'];
+
       }
       //password matching
       if(password_verify($password, $dbpass)){
-              $_SESSION["curuser"] = $user_id;
+              $_SESSION["curuser"] = strtoupper($user_id);
+              $_SESSION["cracid"] = $ACC_ID;
               header('Location: home.php');
               echo "<p><h2>success<h2/><p/>";
        }else{
@@ -68,7 +73,7 @@ if (isset($_POST['sign_in'])){
 <body>
 	<form action="index.php" method="post" class="form-signin">
     <!-- <img class="mb-4" src="{{ site.baseurl }}/docs/{{ site.docs_version }}/assets/brand/<bdo></bdo>otstrap-solid.svg" alt="" width="72" height="72"> -->
-    <h1 class="h1 mb-3 font-weight-normal text-center">WELCOME</h1><h5 class="mb-3 font-weight-normal text-center"><b>TO<br/>STUDENT MANAGEMENT SYSTEM</b></h5>
+    <h1 class="h1 mb-3 font-weight-normal text-center">WELCOME</h1><h5 class="mb-3 font-weight-normal text-center"><b>TO<br/><h1>PIBT</h1>STUDENT MANAGEMENT SYSTEM</b></h5>
     <label for="inputEmail" class="sr-only">Email address</label>
     <!--<input name="user_id" type="email" id="inputEmail" class="form-control rd" placeholder="User id" required autofocus><br>--->
      <input name="user_id" type="text" id="inputEmail" class="form-control rd" placeholder="User Id" required autofocus><br>

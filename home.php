@@ -1,5 +1,15 @@
 <?php require_once('DB_CONNECTION/DB_Connection.php'); ?>
 <?php  session_start();?>
+<?php if (!isset($_SESSION["curuser"])|| !isset($_SESSION["cracid"])){
+header('Location: index.php');
+}?>
+ <?php if(isset($_POST['sign_out'])){
+          //Clearing all session variables
+          session_unset();
+          Header('Location: index.php');
+          
+         
+        }?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,8 +27,13 @@
 		<!-- <input type="text" class="form-control form-control-dark w-100" placeholder="search" aria-lable="Search"> -->
 		<ul class="navbar-nav px-3">
 			<li class="nav-item text-nowrap">
-<?php echo  '<div class="navbar-brand col-sm-3 col-md-2 mr-0 p-3 "><h6>WELCOME '.$_SESSION["curuser"].'! <h6/><div/>';?>
-				<a href="index.php" class="nav-link">Sign out</a>
+<?php echo  '<div class="navbar-brand col-sm-3 col-md-2 mr-0 p-3 "><h6>WELCOME '.$_SESSION["curuser"].' ! <h6/><div/>';?>
+				<!--<a href="index.php" class="nav-link">Sign out</a>-->
+        <form action="home.php" method="post">
+        <!--<a action="home.php" method="post" name="so" class="nav-link">Sign out</a>--->
+        <button  type="submit" name="sign_out" onmouseover="this.style.color='rgba(255, 255, 255, 0.75)'" onmouseout="this.style.color='rgba(255, 255, 255, 0.5)'" style="color: rgba(255, 255, 255, 0.5); background-color: transparent; border: none; " >SIGN OUT</button>
+      </form>
+       
 			</li>
 		</ul>
 		</nav>
@@ -34,36 +49,78 @@
 									Dashboard<span class="sr-only ">(current</span>
 								</a>
 							</li>
+  
+              <?php 
+              //fetching acc_id
+              $ACC_ID = $_SESSION["cracid"];
+              //Fetching function id for acc_id
+              $sqlq = "SELECT FUNC_ID FROM ACC_ACCESS WHERE ACC_ID=?";
+              $para = array($ACC_ID);
+              $stmt = sqlsrv_query($con,$sqlq,$para);
+          //    $res = sqlsrv_execute($stmt);
+              if($stmt){
+                while($rec = sqlsrv_fetch_array($stmt)){
+                   $FUNC_ID = $rec['FUNC_ID'];
+                   //Getting link and info for FUNC_ID
+                   $sqlac = "SELECT PAGE_LINK,INFO FROM ACC_ACCESS_DEF WHERE FUNC_ID=?";
+                   $paraac = array($FUNC_ID);
+                   $stmtac = sqlsrv_prepare($con,$sqlac,$paraac);
+                   $res1 = sqlsrv_execute($stmtac);
+                   while ($recl = sqlsrv_fetch_array($stmtac)) {
+                     # code...
+                    //Output with new line and new link
+                echo '<li class="nav-item">
+                <a href="'.$recl['PAGE_LINK'].'" class="nav-link text-white mt-5">
+                  <span data-feather="file"></span>'
+                  .$recl['INFO'].
+                  '
+                </a>
+              </li>';
+                   }
+
+//$sql = "UPDATE Table_1 SET data = ? WHERE id = ?";
+
+//$params = array("updated data", 1);
+
+//$stmt = sqlsrv_query( $conn, $sql, $params);
+
+
+                }
+              }else{
+                $acc_er = "You have no any access! Please contact system adimn..";
+              }
+              ?>
+
 							<li class="nav-item">
-								<a href="#" class="nav-link">
+								<a href="#" class="nav-link text-white mt-5">
 									<span data-feather="file"></span>
 									Orders
 								</a>
 							</li>
 
 							<li class="nav-item">
-								<a href="#" class="nav-link">
+								<a href="#" class="nav-link text-white mt-5">
 									<span data-feather="Shopping-cart"></span>
 									Product
 								</a>
 							</li>
 
 							<li class="nav-item">
-								<a href="#" class="nav-link">
+								<a href="#" class="nav-link text-white mt-5">
 									<span data-feather="file"></span>
 									Custmers
 								</a>
 							</li>
 
 							<li class="nav-item">
-								<a href="#" class="nav-link">
+								<a href="#" class="nav-link text-white mt-5">
 									<span data-feather="file"></span>
 									Reportes
 								</a>
 							</li>
 
 							<li class="nav-item">
-								<a href="#" class="nav-link">
+								<a href="#" class="nav-link text-white mt-5">
 									<span data-feather="file"></span>
 									Integration
 								</a>
@@ -71,32 +128,32 @@
 						</ul>
 
 						<h6 class="sidebar-haeding d-flex justify-content-between align-items-center px-3 mt-4 mb-1 texxt-muted">
-							<span>Saved reports</span>
+							<span class="nav-link text-white mt-5">Saved reports</span>
 							<a href="#" class="d-flex align-items-center text-muted">
 								<span data-feather="plus-circle"></span>
 							</a>
 						</h6>
-						<ul class="nav flex-column mb-2">
+						<ul class="nav flex-column mb-2 ">
 							<li class="nav-item">
-								<a href="#" class="nav-link">
+								<a href="#" class="nav-link text-white mt-5">
 									<span data-feather="file-text"></span>Current month
 								</a>
 							</li>
 							
 							<li class="nav-item">
-								<a href="#" class="nav-link">
+								<a href="#" class="nav-link text-white mt-5">
 									<span data-feather="file-text"></span>Last quarter
 								</a>
 							</li>
 
 							<li class="nav-item">
-								<a href="#" class="nav-link">
+								<a href="#" class="nav-link text-white mt-5">
 									<span data-feather="file-text"></span>Social engagement
 								</a>
 							</li>
 
 							<li class="nav-item">
-								<a href="#" class="nav-link">
+								<a href="#" class="nav-link text-white mt-5">
 									<span data-feather="file-text"></span>Year-end sale
 								</a>
 							</li>
@@ -123,7 +180,7 @@
 						
 					</div>
 
-					<canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+				<!--	<canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>--->
 
 					<h2>Section title</h2>
       <div class="table-responsive">
@@ -258,3 +315,4 @@
 		<script type="text/javascript" src="js/bootstrap.min.js"></script>
 </body>
 </html>
+<?php sqlsrv_close($con);?>
